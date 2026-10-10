@@ -22,12 +22,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Preparar nombre de imagen en minúsculas
+        run: echo "IMAGE_NAME=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Construir y subir la imagen
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/tarjetas-app:latest
+          tags: ghcr.io/${{ env.IMAGE_NAME }}/tarjetas-app:latest
 
       - name: Desplegar en el droplet
         uses: appleboy/ssh-action@v1.0.3

@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/EliseoPS/tarjetas-app:latest
+    image: ghcr.io/eliseops/tarjetas-app:latest
     restart: always
     env_file: .env.production
     expose:
