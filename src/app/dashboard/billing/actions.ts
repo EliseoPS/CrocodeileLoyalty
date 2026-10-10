@@ -1,11 +1,12 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 
 export async function createCheckoutSession(): Promise<{ error: string } | { url: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const stripe = getStripe()
   if (!user) return { error: 'No has iniciado sesión' }
 
   const userEmail = user.email
@@ -29,6 +30,7 @@ export async function createCheckoutSession(): Promise<{ error: string } | { url
   const customerId = existingSub?.stripe_customer_id || undefined
 
   async function createSession(withCustomer: boolean) {
+    const stripe = getStripe()
     return stripe.checkout.sessions.create({
       mode: 'subscription',
       customer: withCustomer ? customerId : undefined,
@@ -57,6 +59,7 @@ export async function createCheckoutSession(): Promise<{ error: string } | { url
 
 export async function createPortalSession(): Promise<{ error: string } | { url: string }> {
   const supabase = await createClient()
+  const stripe = getStripe()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No has iniciado sesión' }
 

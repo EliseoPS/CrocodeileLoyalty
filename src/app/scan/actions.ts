@@ -42,7 +42,7 @@ export async function giveStamp({ serial }: { serial: string }) {
     .single()
 
   if (cardError || !card) return { error: 'Tarjeta no encontrada' }
-  if (card.business_id !== device.businessId) return { error: 'Esta tarjeta no pertenece a este negocio' }
+  if (card.business_id !== device.businessId) return { ersror: 'Esta tarjeta no pertenece a este negocio' }
   if (card.status !== 'active') return { error: 'Tarjeta bloqueada' }
 
   const { data: business } = await supabase
