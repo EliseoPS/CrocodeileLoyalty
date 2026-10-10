@@ -31,6 +31,11 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ env.IMAGE_NAME }}/tarjetas-app:latest
+          build-args: |
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+            NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_DEFAULT_LOGO_URL=${{ secrets.NEXT_PUBLIC_DEFAULT_LOGO_URL }}
 
       - name: Desplegar en el droplet
         uses: appleboy/ssh-action@v1.0.3
