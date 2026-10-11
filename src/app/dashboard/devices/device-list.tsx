@@ -6,8 +6,8 @@ import { getDevices, revokeDevice } from './list-actions'
 type Device = {
   id: string
   name: string
-  token: string | null
-  pairing_code: string | null
+  token_hash: string | null
+  pairing_code_hash: string | null
   pairing_expires_at: string | null
   revoked_at: string | null
   last_seen_at: string | null
@@ -16,7 +16,7 @@ type Device = {
 
 function statusOf(device: Device): { label: string; color: string } {
   if (device.revoked_at) return { label: 'Revocado', color: '#999' }
-  if (device.token) return { label: 'Vinculado', color: 'green' }
+  if (device.token_hash) return { label: 'Vinculado', color: 'green' }
   if (device.pairing_expires_at && new Date(device.pairing_expires_at) > new Date()) {
     return { label: 'Esperando código...', color: 'orange' }
   }
@@ -65,7 +65,7 @@ export default function DeviceList({ refreshKey }: { refreshKey: number }) {
               <td style={{ color: status.color, padding: '8px 0' }}>{status.label}</td>
               <td>{d.last_seen_at ? new Date(d.last_seen_at).toLocaleString() : '—'}</td>
               <td>
-                {!d.revoked_at && d.token && (
+                {!d.revoked_at && d.token_hash && (
                   <button onClick={() => handleRevoke(d.id)} style={{ color: 'red' }}>
                     Revocar
                   </button>

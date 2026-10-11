@@ -3,6 +3,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { cookies } from 'next/headers'
 import { randomBytes } from 'crypto'
+import { hashToken } from '@/lib/hash'
 
 export async function pairDevice(code: string): Promise<{ error: string } | { success: true }> {
   const admin = createAdminClient()
@@ -10,7 +11,7 @@ export async function pairDevice(code: string): Promise<{ error: string } | { su
   const { data: device, error } = await admin
     .from('devices')
     .select('id, pairing_expires_at')
-    .eq('pairing_code', code.toUpperCase())
+    .eq('pairing_code_hash', hashToken(code.toUpperCase()))
     .is('revoked_at', null)
     .single()
 
@@ -25,8 +26,8 @@ export async function pairDevice(code: string): Promise<{ error: string } | { su
   const { error: updateError } = await admin
     .from('devices')
     .update({
-      token,
-      pairing_code: null,
+      token_hash: hashToken(token),
+      pairing_code_hash: null,
       pairing_expires_at: null,
       last_seen_at: new Date().toISOString(),
     })
@@ -39,7 +40,7 @@ export async function pairDevice(code: string): Promise<{ error: string } | { su
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 365, // 1 año
+    maxAge: 60 * 60 * 24 * 365,
     path: '/',
   })
 

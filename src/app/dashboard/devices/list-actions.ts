@@ -18,7 +18,7 @@ export async function getDevices() {
 
   const { data: devices, error } = await supabase
     .from('devices')
-    .select('id, name, token, pairing_code, pairing_expires_at, revoked_at, last_seen_at, created_at')
+    .select('id, name, token_hash, pairing_code_hash, pairing_expires_at, revoked_at, last_seen_at, created_at')
     .eq('business_id', membership.business_id)
     .order('created_at', { ascending: false })
 
