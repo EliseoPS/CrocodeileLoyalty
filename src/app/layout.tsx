@@ -15,6 +15,20 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Crocodeile Loyalty",
   description: "Tarjetas de lealtad virtuales para tu negocio, motiva a tus clientes a regresar",
+  icons: {
+    icon: [
+      {
+        media: '(prefers-color-scheme: light)',
+        url: '/faviconOnLight.ico',
+        href: '/faviconOnLight.ico',
+      },
+      {
+        media: '(prefers-color-scheme: dark)',
+        url: '/favicon.ico',
+        href: '/favicon.ico',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
