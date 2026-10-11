@@ -42,7 +42,11 @@ export default function RegisterForm({
       <input name="name" placeholder="Tu nombre" required />
       <input name="phone" placeholder="Tu teléfono" required />
       <label>
-        <input type="checkbox" required /> Acepto que guarden mis datos para mi tarjeta de lealtad
+        <input type="checkbox" required />{' '}
+        Acepto el{' '}
+        <a href="/legal/privacidad" target="_blank" rel="noopener noreferrer">
+          Aviso de Privacidad
+        </a>
       </label>
       <button type="submit" disabled={status === 'loading'}>
         {status === 'loading' ? 'Registrando...' : 'Obtener mi tarjeta'}

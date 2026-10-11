@@ -48,6 +48,12 @@ export default function LoginPage() {
         <button type="submit" disabled={loading} style={{ width: '100%', padding: 8 }}>
           {loading ? 'Cargando...' : mode === 'login' ? 'Entrar' : 'Registrarme'}
         </button>
+        <p style={{ fontSize: 12, color: '#888', marginTop: 16 }}>
+          Al continuar, aceptas nuestros{' '}
+          <a href="/legal/terminos" target="_blank" rel="noopener noreferrer">Términos y Condiciones</a>{' '}
+          y nuestro{' '}
+          <a href="/legal/privacidad" target="_blank" rel="noopener noreferrer">Aviso de Privacidad</a>.
+        </p>
       </form>
       <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')} style={{ marginTop: 12 }}>
         {mode === 'login' ? '¿No tienes cuenta? Crear una' : '¿Ya tienes cuenta? Inicia sesión'}
