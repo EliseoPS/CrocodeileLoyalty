@@ -15,14 +15,20 @@ export default function PairPage() {
     setLoading(true)
     setError(null)
 
-    const result = await pairDevice(code)
+    try{
+      const result = await pairDevice(code)
 
-    if ('error' in result) {
-      setError(result.error)
+      if ('error' in result) {
+        setError(result.error)
+        setLoading(false)
+      } else {
+        router.push('/scan')
+      }
+    } catch {
+      setError('Demasiados intentos. Espera unos minutos y vuelve a intentar.')
       setLoading(false)
-    } else {
-      router.push('/scan')
     }
+
   }
 
   return (
