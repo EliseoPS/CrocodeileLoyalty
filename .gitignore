@@ -45,3 +45,5 @@ node_modules
 .env.local
 .env.production
 *.tar.gz
+# Sentry Config File
+.env.sentry-build-plugin

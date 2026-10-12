@@ -27,6 +27,8 @@ jobs:
 
       - name: Construir y subir la imagen
         uses: docker/build-push-action@v5
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         with:
           context: .
           push: true
@@ -36,7 +38,7 @@ jobs:
             NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
             NEXT_PUBLIC_SITE_URL=${{ secrets.NEXT_PUBLIC_SITE_URL }}
             NEXT_PUBLIC_DEFAULT_LOGO_URL=${{ secrets.NEXT_PUBLIC_DEFAULT_LOGO_URL }}
-
+            SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
       - name: Desplegar en el droplet
         uses: appleboy/ssh-action@v1.0.3
         with:
