@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { login, signup } from './actions'
 import { requestPasswordReset } from './forgot-password-actions'
 
@@ -29,10 +29,20 @@ function EyeIcon({ off }: { off: boolean }) {
   )
 }
 
+function ArrowLeftIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M19 12H5M11 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 function fieldBorder(touched: boolean, valid: boolean) {
   if (!touched) return 'border-black/15 focus:border-[var(--forest)]'
   return valid ? 'border-[var(--moss)]' : 'border-[var(--brick)]'
 }
+
+const confettiColors = ['var(--forest)', 'var(--moss)', 'var(--brick)', '#D7E4DC', '#ffffff']
 
 export default function LoginPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
@@ -40,6 +50,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [showForgot, setShowForgot] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -54,6 +65,50 @@ export default function LoginPage() {
   const checks = passwordChecks(password)
   const passwordValid = checks.length && checks.digit && checks.special
   const confirmValid = confirmPassword.length > 0 && confirmPassword === password
+
+const [confetti, setConfetti] = useState<
+  { id: number; left: number; delay: number; duration: number; color: string; size: number }[]
+>([])
+
+useEffect(() => {
+  let cancelled = false
+
+  async function generate() {
+    await Promise.resolve()
+    if (cancelled) return
+
+    if (!showSuccess) {
+      setConfetti([])
+      return
+    }
+    setConfetti(
+      Array.from({ length: 16 }).map((_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        delay: Math.random() * 0.3,
+        duration: 0.9 + Math.random() * 0.6,
+        color: confettiColors[i % confettiColors.length],
+        size: 6 + Math.random() * 5,
+      }))
+    )
+  }
+
+  generate()
+  return () => {
+    cancelled = true
+  }
+}, [showSuccess])
+
+  function dismissSuccess() {
+    setShowSuccess(false)
+    setMode('login')
+    setPassword('')
+    setConfirmPassword('')
+    setPasswordTouched(false)
+    setConfirmTouched(false)
+  }
+
+
 
   async function handleSubmit(formData: FormData) {
     setMessage(null)
@@ -83,10 +138,7 @@ export default function LoginPage() {
     if (!result.success) {
       setMessage(result.error)
     } else if (mode === 'signup') {
-      setMessage('Cuenta creada. Ahora inicia sesión.')
-      setMode('login')
-      setPassword('')
-      setConfirmPassword('')
+      setShowSuccess(true)
     }
     setLoading(false)
   }
@@ -104,6 +156,12 @@ export default function LoginPage() {
     setLoading(false)
   }
 
+  function backToLogin() {
+    setShowForgot(false)
+    setMessage(null)
+    setForgotEmail('')
+  }
+
   return (
     <main className="min-h-screen flex flex-col md:flex-row" style={{ background: 'var(--paper)' }}>
       {/* Panel de marca */}
@@ -119,7 +177,6 @@ export default function LoginPage() {
           }}
         />
         <div className="relative">
-          {/* Espacio para tu logo real: reemplaza este bloque por <img src="/logo.svg" .../> */}
           <div
             className="w-12 h-12 rounded-md flex items-center justify-center mb-6"
             style={{ background: 'var(--moss)' }}
@@ -146,162 +203,187 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center px-6 py-10 md:py-14">
         <div className="w-full max-w-sm">
           <h2 className="text-xl font-semibold mb-6" style={{ color: 'var(--ink)', fontFamily: 'var(--font-display)' }}>
-            {mode === 'login' ? 'Inicia sesión' : 'Crea tu cuenta'}
+            {showForgot ? 'Recupera tu contraseña' : mode === 'login' ? 'Inicia sesión' : 'Crea tu cuenta'}
           </h2>
 
-          <form action={handleSubmit} className="space-y-4" noValidate>
-            <div>
-              <label htmlFor="email" className="block text-sm mb-1" style={{ color: 'var(--ink-soft)' }}>
-                Correo
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                maxLength={254}
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={() => setEmailTouched(true)}
-                className={`w-full rounded-md border px-3 py-2 outline-none transition-colors ${fieldBorder(
-                  emailTouched,
-                  emailValid
-                )}`}
-                placeholder="tu@negocio.com"
-              />
-            </div>
+          {!showForgot ? (
+            <>
+              <form action={handleSubmit} className="space-y-4" noValidate>
+                <div>
+                  <label htmlFor="email" className="block text-sm mb-1" style={{ color: 'var(--ink-soft)' }}>
+                    Correo
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    maxLength={254}
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onBlur={() => setEmailTouched(true)}
+                    className={`w-full rounded-md border bg-white text-[var(--ink)] px-3 py-2 outline-none transition-colors ${fieldBorder(
+                      emailTouched,
+                      emailValid
+                    )}`}
+                    placeholder="tu@negocio.com"
+                  />
+                </div>
 
+                <div>
+                  <label htmlFor="password" className="block text-sm mb-1" style={{ color: 'var(--ink-soft)' }}>
+                    Contraseña
+                  </label>
+                  <div className="relative">
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      maxLength={128}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onBlur={() => setPasswordTouched(true)}
+                      className={`w-full rounded-md border bg-white text-[var(--ink)] px-3 py-2 pr-10 outline-none transition-colors ${
+                        mode === 'signup'
+                          ? fieldBorder(passwordTouched, passwordValid)
+                          : 'border-black/15 focus:border-[var(--forest)]'
+                      }`}
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      style={{ color: 'var(--ink-soft)' }}
+                      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    >
+                      <EyeIcon off={showPassword} />
+                    </button>
+                  </div>
+
+                  {mode === 'signup' && (
+                    <ul className="mt-2 space-y-1 text-xs">
+                      {[
+                        { ok: checks.length, label: 'Mínimo 8 caracteres' },
+                        { ok: checks.digit, label: 'Al menos un número' },
+                        { ok: checks.special, label: 'Al menos un carácter especial' },
+                      ].map((item) => (
+                        <li
+                          key={item.label}
+                          className="flex items-center gap-2"
+                          style={{ color: item.ok ? 'var(--moss)' : 'var(--ink-soft)' }}
+                        >
+                          <span>{item.ok ? '✓' : '○'}</span>
+                          {item.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {mode === 'signup' && (
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm mb-1" style={{ color: 'var(--ink-soft)' }}>
+                      Repite tu contraseña
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirm ? 'text' : 'password'}
+                        maxLength={128}
+                        required
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onBlur={() => setConfirmTouched(true)}
+                        className={`w-full rounded-md border bg-white text-[var(--ink)] px-3 py-2 pr-10 outline-none transition-colors ${fieldBorder(
+                          confirmTouched,
+                          confirmValid
+                        )}`}
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirm((v) => !v)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2"
+                        style={{ color: 'var(--ink-soft)' }}
+                        aria-label={showConfirm ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                      >
+                        <EyeIcon off={showConfirm} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-md py-2.5 font-medium text-white transition-opacity disabled:opacity-60"
+                  style={{ background: 'var(--forest)' }}
+                >
+                  {loading ? 'Cargando...' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
+                </button>
+              </form>
+
+              <button
+                onClick={() => {
+                  setMode(mode === 'login' ? 'signup' : 'login')
+                  setMessage(null)
+                }}
+                className="mt-4 text-sm"
+                style={{ color: 'var(--moss)' }}
+              >
+                {mode === 'login' ? '¿No tienes cuenta? Crea una' : '¿Ya tienes cuenta? Inicia sesión'}
+              </button>
+
+              {mode === 'login' && (
+                <button
+                  onClick={() => {
+                    setShowForgot(true)
+                    setMessage(null)
+                  }}
+                  className="block mt-2 text-sm"
+                  style={{ color: 'var(--ink-soft)' }}
+                >
+                  Olvidé mi contraseña
+                </button>
+              )}
+            </>
+          ) : (
             <div>
-              <label htmlFor="password" className="block text-sm mb-1" style={{ color: 'var(--ink-soft)' }}>
-                Contraseña
-              </label>
-              <div className="relative">
+              <button
+                onClick={backToLogin}
+                className="flex items-center gap-1.5 text-sm mb-4"
+                style={{ color: 'var(--ink-soft)' }}
+              >
+                <ArrowLeftIcon />
+                Volver
+              </button>
+              <form onSubmit={handleForgotPassword} className="space-y-2">
+                <label htmlFor="forgotEmail" className="block text-sm mb-1" style={{ color: 'var(--ink-soft)' }}>
+                  Correo
+                </label>
                 <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  maxLength={128}
+                  id="forgotEmail"
+                  type="email"
+                  maxLength={254}
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="tu@negocio.com"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onBlur={() => setPasswordTouched(true)}
-                  className={`w-full rounded-md border px-3 py-2 pr-10 outline-none transition-colors ${
-                    mode === 'signup' ? fieldBorder(passwordTouched, passwordValid) : 'border-black/15 focus:border-[var(--forest)]'
-                  }`}
-                  placeholder="••••••••"
+                  className="w-full rounded-md border border-black/15 bg-white text-[var(--ink)] px-3 py-2 outline-none focus:border-[var(--forest)]"
                 />
                 <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2"
-                  style={{ color: 'var(--ink-soft)' }}
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-md py-2.5 font-medium text-white"
+                  style={{ background: 'var(--moss)' }}
                 >
-                  <EyeIcon off={showPassword} />
+                  {loading ? 'Enviando...' : 'Enviar link de recuperación'}
                 </button>
-              </div>
-
-              {mode === 'signup' && (
-                <ul className="mt-2 space-y-1 text-xs">
-                  {[
-                    { ok: checks.length, label: 'Mínimo 8 caracteres' },
-                    { ok: checks.digit, label: 'Al menos un número' },
-                    { ok: checks.special, label: 'Al menos un carácter especial' },
-                  ].map((item) => (
-                    <li
-                      key={item.label}
-                      className="flex items-center gap-2"
-                      style={{ color: item.ok ? 'var(--moss)' : 'var(--ink-soft)' }}
-                    >
-                      <span>{item.ok ? '✓' : '○'}</span>
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              </form>
             </div>
-
-            {mode === 'signup' && (
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm mb-1" style={{ color: 'var(--ink-soft)' }}>
-                  Repite tu contraseña
-                </label>
-                <div className="relative">
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirm ? 'text' : 'password'}
-                    maxLength={128}
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    onBlur={() => setConfirmTouched(true)}
-                    className={`w-full rounded-md border px-3 py-2 pr-10 outline-none transition-colors ${fieldBorder(
-                      confirmTouched,
-                      confirmValid
-                    )}`}
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm((v) => !v)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2"
-                    style={{ color: 'var(--ink-soft)' }}
-                    aria-label={showConfirm ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                  >
-                    <EyeIcon off={showConfirm} />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-md py-2.5 font-medium text-white transition-opacity disabled:opacity-60"
-              style={{ background: 'var(--forest)' }}
-            >
-              {loading ? 'Cargando...' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
-            </button>
-          </form>
-
-          <button
-            onClick={() => {
-              setMode(mode === 'login' ? 'signup' : 'login')
-              setMessage(null)
-            }}
-            className="mt-4 text-sm"
-            style={{ color: 'var(--moss)' }}
-          >
-            {mode === 'login' ? '¿No tienes cuenta? Crea una' : '¿Ya tienes cuenta? Inicia sesión'}
-          </button>
-
-          {mode === 'login' && !showForgot && (
-            <button onClick={() => setShowForgot(true)} className="block mt-2 text-sm" style={{ color: 'var(--ink-soft)' }}>
-              Olvidé mi contraseña
-            </button>
-          )}
-
-          {showForgot && (
-            <form onSubmit={handleForgotPassword} className="mt-4 space-y-2">
-              <input
-                type="email"
-                maxLength={254}
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                placeholder="Tu correo"
-                required
-                className="w-full rounded-md border border-black/15 px-3 py-2 outline-none focus:border-[var(--forest)]"
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded-md px-4 py-2 text-sm font-medium text-white"
-                style={{ background: 'var(--moss)' }}
-              >
-                {loading ? 'Enviando...' : 'Enviar link de recuperación'}
-              </button>
-            </form>
           )}
 
           {message && (
@@ -323,6 +405,62 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="relative bg-white rounded-xl px-10 py-10 flex flex-col items-center text-center shadow-xl overflow-hidden success-pop">
+            <div className="confetti-wrap">
+              {confetti.map((p) => (
+                <span
+                  key={p.id}
+                  className="confetti-piece"
+                  style={{
+                    left: `${p.left}%`,
+                    animationDelay: `${p.delay}s`,
+                    animationDuration: `${p.duration}s`,
+                    background: p.color,
+                    width: p.size,
+                    height: p.size * 0.4,
+                  }}
+                />
+              ))}
+            </div>
+            <svg width="56" height="56" viewBox="0 0 56 56" className="relative">
+              <circle
+                cx="28"
+                cy="28"
+                r="26"
+                fill="none"
+                stroke="var(--moss)"
+                strokeWidth="3"
+                className="check-circle-ring"
+              />
+              <path
+                d="M17 29l7 7 15-15"
+                fill="none"
+                stroke="var(--moss)"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="check-mark"
+              />
+            </svg>
+            <p
+              className="relative mt-4 text-lg font-semibold"
+              style={{ color: 'var(--ink)', fontFamily: 'var(--font-display)' }}
+            >
+              Cuenta creada
+            </p>
+            <p className="relative mt-1 text-sm" style={{ color: 'var(--ink-soft)' }}>
+              Ya puedes iniciar sesión.
+            </p>
+            <button onClick={dismissSuccess} className="relative mt-6 text-sm font-medium" style={{ color: 'var(--moss)' }}>
+              Continuar
+            </button>
+          </div>
+        </div>
+      )}
+
     </main>
   )
 }
