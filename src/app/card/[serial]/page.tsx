@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
+import QRCode from 'qrcode'
 
 export default async function CardPage({
   params,
@@ -40,7 +41,8 @@ export default async function CardPage({
   } catch {
     googleWalletLink = null
   }
-
+  const qrDataUrl = await QRCode.toDataURL(card.serial, { width: 300, margin: 1 })
+  
   return (
     <main style={{ padding: 40, maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
       {business?.logo_url && (
@@ -61,11 +63,8 @@ export default async function CardPage({
       </div>
 
       {/* El QR que el cajero va a escanear para dar el sello */}
-      <img
-        src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${card.serial}`}
-        alt="Tu código QR"
-        style={{ margin: '0 auto' }}
-      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={qrDataUrl} alt="Tu código QR" style={{ margin: '0 auto' }} />
       <p style={{ fontSize: 12, color: '#888' }}>Muestra este código en caja</p>
 
       {googleWalletLink && (

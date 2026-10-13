@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import PrintButton from './print-button'
+import QRCode from 'qrcode'
 
 export default async function PrintPage({
   params,
@@ -19,7 +20,7 @@ export default async function PrintPage({
   if (!business) notFound()
 
   const joinUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/j/${slug}`
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(joinUrl)}`
+  const qrDataUrl = await QRCode.toDataURL(joinUrl, { width: 500, margin: 1 })
 
   return (
     <main
@@ -35,7 +36,7 @@ export default async function PrintPage({
     >
       <h1 style={{ fontSize: 36, marginBottom: 8 }}>{business.name}</h1>
       <p style={{ fontSize: 20, marginBottom: 24 }}>Escanea y obtén tu tarjeta de lealtad</p>
-      <img src={qrImageUrl} alt="QR de registro" width={350} height={350} />
+      <img src={qrDataUrl} alt="QR de registro" width={350} height={350} />
       <p style={{ fontSize: 14, color: '#888', marginTop: 24 }}>{joinUrl}</p>
 
     <PrintButton />
