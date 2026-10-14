@@ -29,6 +29,14 @@ export default async function CardPage({
 
   if (!card) notFound()
 
+  // --- DIAGNÓSTICO TEMPORAL, borrar después ---
+  const { debugGetObject } = await import('@/lib/google-wallet')
+  try {
+    await debugGetObject(card.id)
+  } catch (err) {
+    console.error('Error en debugGetObject:', err)
+  }
+
   const customer = Array.isArray(card.customers) ? card.customers[0] : card.customers
   const program = Array.isArray(card.programs) ? card.programs[0] : card.programs
   const business = Array.isArray(card.businesses) ? card.businesses[0] : card.businesses
@@ -42,7 +50,7 @@ export default async function CardPage({
     googleWalletLink = null
   }
   const qrDataUrl = await QRCode.toDataURL(card.serial, { width: 300, margin: 1 })
-  
+
   return (
     <main style={{ padding: 40, maxWidth: 400, margin: '0 auto', textAlign: 'center' }}>
       {business?.logo_url && (
