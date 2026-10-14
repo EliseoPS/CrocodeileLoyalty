@@ -30,12 +30,12 @@ export default async function CardPage({
   if (!card) notFound()
 
   // --- DIAGNÓSTICO TEMPORAL, borrar después ---
-  const { debugGetObject } = await import('@/lib/google-wallet')
-  try {
-    await debugGetObject(card.id)
-  } catch (err) {
-    console.error('Error en debugGetObject:', err)
-  }
+  // const { debugGetObject } = await import('@/lib/google-wallet')
+  // try {
+  //   await debugGetObject(card.id)
+  // } catch (err) {
+  //   console.error('Error en debugGetObject:', err)
+  // }
 
   const customer = Array.isArray(card.customers) ? card.customers[0] : card.customers
   const program = Array.isArray(card.programs) ? card.programs[0] : card.programs

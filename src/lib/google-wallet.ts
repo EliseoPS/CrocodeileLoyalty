@@ -62,7 +62,7 @@ export async function ensureLoyaltyClass({
     id: classId,
     issuerName: businessName,
     programName: programName,
-    reviewStatus: 'APPROVED',
+    reviewStatus: 'UNDER_REVIEW',
     hexBackgroundColor: hexColor,
     programLogo: {
       sourceUri: {
