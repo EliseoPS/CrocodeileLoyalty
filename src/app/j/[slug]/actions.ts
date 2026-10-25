@@ -2,6 +2,15 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { randomBytes } from 'crypto'
+// /max: metadatos completos (rangos reales por lada). Solo corre en servidor, no pesa en el navegador.
+import { isValidPhoneNumber } from 'libphonenumber-js/max'
+import { syncWalletPass } from '@/lib/wallet-sync'
+
+export type RegisterResult =
+  | { success: false; error: string; code?: 'duplicate' | 'invalid_phone' }
+  | { success: true; serial: string }
+
+const GENERIC_ERROR = 'Hubo un error, intenta de nuevo.'
 
 export async function registerCustomer({
   businessId,
@@ -13,8 +22,35 @@ export async function registerCustomer({
   programId: string
   name: string
   phone: string
-}) {
+}): Promise<RegisterResult> {
+  // Validación en servidor: los límites del input se pueden saltar desde el navegador
+  name = (name ?? '').trim()
+  phone = (phone ?? '').replace(/\D/g, '')
+  if (!name || name.length > 60) return { success: false, error: 'Escribe un nombre válido.' }
+  if (phone.length !== 10) {
+    return { success: false, code: 'invalid_phone', error: 'El teléfono debe tener 10 dígitos.' }
+  }
+  // Valida que la lada y el rango existan en México (no comprueba que la línea esté activa)
+  if (!isValidPhoneNumber(phone, 'MX')) {
+    return {
+      success: false,
+      code: 'invalid_phone',
+      error: 'Ese número no parece válido. Revisa que sean los 10 dígitos con tu lada.',
+    }
+  }
+
   const supabase = createAdminClient()
+
+  // businessId/programId vienen del navegador: confirmar que el programa es de ese negocio y está activo
+  const { data: programInfo } = await supabase
+    .from('programs')
+    .select('id')
+    .eq('id', programId)
+    .eq('business_id', businessId)
+    .eq('active', true)
+    .single()
+
+  if (!programInfo) return { success: false, error: GENERIC_ERROR }
 
   // Busca si ya existe un cliente con ese teléfono en este negocio
   let { data: customer } = await supabase
@@ -31,7 +67,10 @@ export async function registerCustomer({
       .select('id')
       .single()
 
-    if (customerError) return { error: customerError.message }
+    if (customerError) {
+      console.error('No se pudo crear el cliente:', customerError)
+      return { success: false, error: GENERIC_ERROR }
+    }
     customer = newCustomer
   }
 
@@ -43,12 +82,20 @@ export async function registerCustomer({
     .eq('customer_id', customer!.id)
     .single()
 
-  if (existingCard) return { serial: existingCard.serial }
+  // Nunca devolver la tarjeta existente: cualquiera que escribiera el teléfono de otra
+  // persona obtendría el enlace a su tarjeta (y su QR para canjear recompensas).
+  if (existingCard) {
+    return {
+      success: false,
+      code: 'duplicate',
+      error: 'Ya hay una tarjeta registrada con este número. Si es tuya y perdiste el enlace, pide ayuda en el negocio.',
+    }
+  }
 
   const serial = randomBytes(16).toString('hex')
 
   // OJO: este insert ahora SÍ pide "id" de vuelta con .select('id').single()
-  const { data: card, error: cardError } = await supabase
+  const { error: cardError } = await supabase
     .from('cards')
     .insert({
       business_id: businessId,
@@ -59,21 +106,17 @@ export async function registerCustomer({
     .select('id')
     .single()
 
-  if (cardError) return { error: cardError.message }
+  if (cardError) {
+    console.error('No se pudo crear la tarjeta:', cardError)
+    return { success: false, error: GENERIC_ERROR }
+  }
 
-  const { upsertLoyaltyObject } = await import('@/lib/google-wallet')
   try {
-    await upsertLoyaltyObject({
-      classId: `${process.env.GOOGLE_WALLET_ISSUER_ID}.${programId}`,
-      cardId: card.id,
-      customerName: name,
-      balance: 0,
-      rewardText: null,
-      serial,
-    })
+    await syncWalletPass(serial)
   } catch (err) {
+    // No bloquea el registro: el pase se vuelve a intentar al tocar "Agregar a Google Wallet"
     console.error('No se pudo crear el objeto de Google Wallet:', err)
   }
 
-  return { serial }
+  return { success: true, serial }
 }

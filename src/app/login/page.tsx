@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { login, signup } from './actions'
 import { requestPasswordReset } from './forgot-password-actions'
+import CrocodeileLogo from '@/components/crocodeile-logo'
+import { Check, Circle } from 'lucide-react'
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
@@ -38,11 +40,11 @@ function ArrowLeftIcon() {
 }
 
 function fieldBorder(touched: boolean, valid: boolean) {
-  if (!touched) return 'border-black/15 focus:border-[var(--forest)]'
-  return valid ? 'border-[var(--moss)]' : 'border-[var(--brick)]'
+  if (!touched) return 'border-line-strong focus:border-[var(--brand-text)]'
+  return valid ? 'border-[var(--accent-text)]' : 'border-[var(--brick)]'
 }
 
-const confettiColors = ['var(--forest)', 'var(--moss)', 'var(--brick)', '#D7E4DC', '#ffffff']
+const confettiColors = ['var(--brand-text)', 'var(--accent-text)', 'var(--brick)', '#D7E4DC', '#ffffff']
 
 export default function LoginPage() {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
@@ -177,14 +179,7 @@ useEffect(() => {
           }}
         />
         <div className="relative">
-          <div
-            className="w-12 h-12 rounded-md flex items-center justify-center mb-6"
-            style={{ background: 'var(--moss)' }}
-          >
-            <span className="text-white text-xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-              C
-            </span>
-          </div>
+          <CrocodeileLogo size={48} className="mb-6" />
           <h1
             className="text-3xl md:text-4xl font-bold text-white leading-tight"
             style={{ fontFamily: 'var(--font-display)' }}
@@ -222,7 +217,7 @@ useEffect(() => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={() => setEmailTouched(true)}
-                    className={`w-full rounded-md border bg-white text-[var(--ink)] px-3 py-2 outline-none transition-colors ${fieldBorder(
+                    className={`w-full rounded-md border bg-surface text-[var(--ink)] px-3 py-2 outline-none transition-colors ${fieldBorder(
                       emailTouched,
                       emailValid
                     )}`}
@@ -244,10 +239,10 @@ useEffect(() => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       onBlur={() => setPasswordTouched(true)}
-                      className={`w-full rounded-md border bg-white text-[var(--ink)] px-3 py-2 pr-10 outline-none transition-colors ${
+                      className={`w-full rounded-md border bg-surface text-[var(--ink)] px-3 py-2 pr-10 outline-none transition-colors ${
                         mode === 'signup'
                           ? fieldBorder(passwordTouched, passwordValid)
-                          : 'border-black/15 focus:border-[var(--forest)]'
+                          : 'border-line-strong focus:border-[var(--brand-text)]'
                       }`}
                       placeholder="••••••••"
                     />
@@ -272,9 +267,9 @@ useEffect(() => {
                         <li
                           key={item.label}
                           className="flex items-center gap-2"
-                          style={{ color: item.ok ? 'var(--moss)' : 'var(--ink-soft)' }}
+                          style={{ color: item.ok ? 'var(--accent-text)' : 'var(--ink-soft)' }}
                         >
-                          <span>{item.ok ? '✓' : '○'}</span>
+                          {item.ok ? <Check size={14} aria-hidden /> : <Circle size={12} aria-hidden />}
                           {item.label}
                         </li>
                       ))}
@@ -297,7 +292,7 @@ useEffect(() => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         onBlur={() => setConfirmTouched(true)}
-                        className={`w-full rounded-md border bg-white text-[var(--ink)] px-3 py-2 pr-10 outline-none transition-colors ${fieldBorder(
+                        className={`w-full rounded-md border bg-surface text-[var(--ink)] px-3 py-2 pr-10 outline-none transition-colors ${fieldBorder(
                           confirmTouched,
                           confirmValid
                         )}`}
@@ -332,7 +327,7 @@ useEffect(() => {
                   setMessage(null)
                 }}
                 className="mt-4 text-sm"
-                style={{ color: 'var(--moss)' }}
+                style={{ color: 'var(--accent-text)' }}
               >
                 {mode === 'login' ? '¿No tienes cuenta? Crea una' : '¿Ya tienes cuenta? Inicia sesión'}
               </button>
@@ -372,7 +367,7 @@ useEffect(() => {
                   onChange={(e) => setForgotEmail(e.target.value)}
                   placeholder="tu@negocio.com"
                   required
-                  className="w-full rounded-md border border-black/15 bg-white text-[var(--ink)] px-3 py-2 outline-none focus:border-[var(--forest)]"
+                  className="w-full rounded-md border border-line-strong bg-surface text-[var(--ink)] px-3 py-2 outline-none focus:border-[var(--brand-text)]"
                 />
                 <button
                   type="submit"
@@ -394,11 +389,11 @@ useEffect(() => {
 
           <p className="mt-8 text-xs leading-relaxed" style={{ color: 'var(--ink-soft)' }}>
             Al continuar, aceptas nuestros{' '}
-            <a href="/legal/terminos" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--moss)' }}>
+            <a href="/legal/terminos" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--accent-text)' }}>
               Términos y Condiciones
             </a>{' '}
             y nuestro{' '}
-            <a href="/legal/privacidad" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--moss)' }}>
+            <a href="/legal/privacidad" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--accent-text)' }}>
               Aviso de Privacidad
             </a>
             .
@@ -408,7 +403,7 @@ useEffect(() => {
 
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="relative bg-white rounded-xl px-10 py-10 flex flex-col items-center text-center shadow-xl overflow-hidden success-pop">
+          <div className="relative bg-surface rounded-xl px-10 py-10 flex flex-col items-center text-center shadow-xl overflow-hidden success-pop">
             <div className="confetti-wrap">
               {confetti.map((p) => (
                 <span
@@ -431,14 +426,14 @@ useEffect(() => {
                 cy="28"
                 r="26"
                 fill="none"
-                stroke="var(--moss)"
+                stroke="var(--accent-text)"
                 strokeWidth="3"
                 className="check-circle-ring"
               />
               <path
                 d="M17 29l7 7 15-15"
                 fill="none"
-                stroke="var(--moss)"
+                stroke="var(--accent-text)"
                 strokeWidth="3.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -454,7 +449,7 @@ useEffect(() => {
             <p className="relative mt-1 text-sm" style={{ color: 'var(--ink-soft)' }}>
               Ya puedes iniciar sesión.
             </p>
-            <button onClick={dismissSuccess} className="relative mt-6 text-sm font-medium" style={{ color: 'var(--moss)' }}>
+            <button onClick={dismissSuccess} className="relative mt-6 text-sm font-medium" style={{ color: 'var(--accent-text)' }}>
               Continuar
             </button>
           </div>

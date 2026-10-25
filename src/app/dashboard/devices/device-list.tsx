@@ -15,12 +15,12 @@ type Device = {
 }
 
 function statusOf(device: Device): { label: string; color: string } {
-  if (device.revoked_at) return { label: 'Revocado', color: '#999' }
-  if (device.token_hash) return { label: 'Vinculado', color: 'green' }
+  if (device.revoked_at) return { label: 'Revocado', color: 'var(--ink-soft)' }
+  if (device.token_hash) return { label: 'Vinculado', color: 'var(--accent-text)' }
   if (device.pairing_expires_at && new Date(device.pairing_expires_at) > new Date()) {
-    return { label: 'Esperando código...', color: 'orange' }
+    return { label: 'Esperando código...', color: 'var(--warn)' }
   }
-  return { label: 'Código expirado', color: '#999' }
+  return { label: 'Código expirado', color: 'var(--ink-soft)' }
 }
 
 export default function DeviceList({ refreshKey }: { refreshKey: number }) {
@@ -45,28 +45,41 @@ export default function DeviceList({ refreshKey }: { refreshKey: number }) {
     load()
   }
 
-  if (loading) return <p>Cargando dispositivos...</p>
-  if (devices.length === 0) return <p style={{ color: '#888' }}>Aún no has vinculado ningún dispositivo.</p>
+  if (loading) return <p style={{ color: 'var(--ink-soft)' }}>Cargando dispositivos...</p>
+  if (devices.length === 0)
+    return (
+      <p className="text-sm" style={{ color: 'var(--ink-soft)' }}>
+        Aún no has vinculado ningún dispositivo.
+      </p>
+    )
 
   return (
-    <table style={{ width: '100%', marginTop: 12, fontSize: 14 }}>
+    <table className="w-full text-sm">
       <thead>
-        <tr style={{ textAlign: 'left', color: '#888' }}>
-          <th>Estado</th>
-          <th>Última vez usado</th>
-          <th></th>
+        <tr className="text-left border-b border-line">
+          <th className="pb-2 font-medium" style={{ color: 'var(--ink-soft)' }}>
+            Estado
+          </th>
+          <th className="pb-2 font-medium" style={{ color: 'var(--ink-soft)' }}>
+            Última vez usado
+          </th>
+          <th className="pb-2"></th>
         </tr>
       </thead>
       <tbody>
         {devices.map((d) => {
           const status = statusOf(d)
           return (
-            <tr key={d.id} style={{ borderTop: '1px solid #333' }}>
-              <td style={{ color: status.color, padding: '8px 0' }}>{status.label}</td>
-              <td>{d.last_seen_at ? new Date(d.last_seen_at).toLocaleString() : '—'}</td>
-              <td>
+            <tr key={d.id} className="border-b border-line-soft">
+              <td className="py-2.5 font-medium" style={{ color: status.color }}>
+                {status.label}
+              </td>
+              <td className="py-2.5" style={{ color: 'var(--ink-soft)' }}>
+                {d.last_seen_at ? new Date(d.last_seen_at).toLocaleString() : '—'}
+              </td>
+              <td className="py-2.5 text-right">
                 {!d.revoked_at && d.token_hash && (
-                  <button onClick={() => handleRevoke(d.id)} style={{ color: 'red' }}>
+                  <button onClick={() => handleRevoke(d.id)} className="btn-danger-text">
                     Revocar
                   </button>
                 )}

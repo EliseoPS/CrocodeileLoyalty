@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import PrintButton from './print-button'
 import QRCode from 'qrcode'
+import DashboardNavbar from '@/app/dashboard/navbar'
 
 export default async function PrintPage({
   params,
@@ -23,29 +24,56 @@ export default async function PrintPage({
   const qrDataUrl = await QRCode.toDataURL(joinUrl, { width: 500, margin: 1 })
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        padding: 40,
-      }}
-    >
-      <h1 style={{ fontSize: 36, marginBottom: 8 }}>{business.name}</h1>
-      <p style={{ fontSize: 20, marginBottom: 24 }}>Escanea y obtén tu tarjeta de lealtad</p>
-      <img src={qrDataUrl} alt="QR de registro" width={350} height={350} />
-      <p style={{ fontSize: 14, color: '#888', marginTop: 24 }}>{joinUrl}</p>
+    <>
+      <div className="no-print" style={{ background: 'var(--paper)' }}>
+        <DashboardNavbar businessName={business.name} />
+        <div className="max-w-3xl mx-auto px-4 py-3">
+          <a
+            href="/dashboard"
+            className="inline-flex items-center gap-1.5 text-sm font-medium"
+            style={{ color: 'var(--ink-soft)' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M11 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Volver al panel
+          </a>
+        </div>
+      </div>
 
-    <PrintButton />
+      <main
+        className="min-h-screen flex flex-col items-center justify-center text-center px-6 py-16"
+        style={{ background: 'var(--paper)' }}
+      >
+        <h1
+          className="text-4xl font-bold mb-2"
+          style={{ color: 'var(--ink)', fontFamily: 'var(--font-display)' }}
+        >
+          {business.name}
+        </h1>
+        <p className="text-lg mb-8" style={{ color: 'var(--ink-soft)' }}>
+          Escanea y obtén tu tarjeta de lealtad
+        </p>
+
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={qrDataUrl} alt="QR de registro" width={350} height={350} />
+        </div>
+
+        <p className="text-sm mt-6 break-all" style={{ color: 'var(--ink-soft)' }}>
+          {joinUrl}
+        </p>
+
+        <div className="no-print mt-8">
+          <PrintButton />
+        </div>
+      </main>
 
       <style>{`
         @media print {
           .no-print { display: none; }
         }
       `}</style>
-    </main>
+    </>
   )
 }

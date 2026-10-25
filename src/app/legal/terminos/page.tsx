@@ -1,8 +1,8 @@
 export default function TerminosPage() {
   return (
-    <main style={{ padding: 40, maxWidth: 740, margin: '0 auto', lineHeight: 1.6 }}>
+    <article className="legal-prose">
       <h1>Términos y Condiciones del Servicio</h1>
-      <p style={{ color: '#888' }}>Última actualización: 10/10/2026</p>
+      <p className="legal-updated">Última actualización: 10/10/2026</p>
 
       <p>
         Estos términos aplican a los Negocios que contratan nuestra plataforma de tarjetas de
@@ -65,7 +65,7 @@ export default function TerminosPage() {
 
       <h2>6. Limitación de responsabilidad</h2>
       <p>
-        El servicio se ofrece "tal cual". No somos responsables por pérdidas de negocio, lucro
+        El servicio se ofrece “tal cual”. No somos responsables por pérdidas de negocio, lucro
         cesante, interrupciones del servicio, ni por fallas de terceros de los que dependemos
         (proveedores de pago, hosting, Google Wallet, Apple Wallet). Nuestra responsabilidad total
         frente a ti, en cualquier caso, se limita al monto que hayas pagado por el servicio en los
@@ -87,6 +87,6 @@ export default function TerminosPage() {
 
       <h2>9. Contacto</h2>
       <p>Para cualquier duda sobre estos términos: contacto@crocodeile.com.</p>
-    </main>
+    </article>
   )
 }

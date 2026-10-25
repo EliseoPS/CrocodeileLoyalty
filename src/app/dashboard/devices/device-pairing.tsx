@@ -24,20 +24,31 @@ export default function DevicePairing() {
   }
 
   return (
-    <div style={{ border: '1px solid #333', borderRadius: 8, padding: 16, marginTop: 24 }}>
-      <h3>Dispositivos de cajero</h3>
-      <p style={{ fontSize: 14, color: '#888' }}>
+    <div>
+      <p className="text-sm mb-4" style={{ color: 'var(--ink-soft)' }}>
         Genera un código y captúralo en el celular/tablet que usarás en caja. Válido 15 minutos.
       </p>
-      <button onClick={handleGenerate} disabled={loading}>
+      <button onClick={handleGenerate} disabled={loading} className="btn-primary rounded-md px-5 py-2.5 text-sm font-medium text-white disabled:opacity-60">
         {loading ? 'Generando...' : 'Generar código'}
       </button>
-      {code && (
-        <p style={{ fontSize: 32, fontWeight: 'bold', letterSpacing: 4, marginTop: 12 }}>{code}</p>
-      )}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <DeviceList refreshKey={refreshKey} />
+      {code && (
+        <p
+          className="text-3xl font-bold tracking-widest mt-4"
+          style={{ color: 'var(--brand-text)', fontFamily: 'var(--font-display)' }}
+        >
+          {code}
+        </p>
+      )}
+      {error && (
+        <p className="text-sm mt-2" style={{ color: 'var(--brick)' }}>
+          {error}
+        </p>
+      )}
+
+      <div className="mt-6">
+        <DeviceList refreshKey={refreshKey} />
+      </div>
     </div>
   )
 }

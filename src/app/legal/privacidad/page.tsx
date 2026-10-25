@@ -1,12 +1,12 @@
 export default function PrivacidadPage() {
   return (
-    <main style={{ padding: 40, maxWidth: 740, margin: '0 auto', lineHeight: 1.6 }}>
+    <article className="legal-prose">
       <h1>Aviso de Privacidad</h1>
-      <p style={{ color: '#888' }}>Última actualización: 10/10/2026</p>
+      <p className="legal-updated">Última actualización: 10/10/2026</p>
 
       <p>
-        Crocodeile ('nosotros', 'la plataforma') opera un sistema de tarjetas de lealtad digitales
-        que conecta a negocios ('los Negocios') con sus clientes finales. Este aviso explica cómo
+        Crocodeile (“nosotros”, “la plataforma”) opera un sistema de tarjetas de lealtad digitales
+        que conecta a negocios (“los Negocios”) con sus clientes finales. Este aviso explica cómo
         tratamos los datos personales de dos grupos distintos de personas: los dueños y
         administradores de los Negocios que contratan nuestro servicio, y los clientes finales que
         se registran para obtener una tarjeta de lealtad.
@@ -89,6 +89,6 @@ export default function PrivacidadPage() {
 
       <h2>7. Contacto</h2>
       <p>Para cualquier duda sobre este aviso: contacto@crocodeile.com.</p>
-    </main>
+    </article>
   )
 }

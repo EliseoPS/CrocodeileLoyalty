@@ -1,38 +1,71 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
+/*
+  Sistema de color. Los componentes usan SOLO estos tokens (nunca blanco/negro fijo),
+  así el modo oscuro se resuelve aquí según la preferencia del navegador.
+  - --forest / --moss: verde de marca para FONDOS (navbar, botones primarios). Igual en ambos modos.
+  - --brand-text / --accent-text: verde para TEXTO, bordes e iconos (se aclara en oscuro para contraste).
+  - --surface: tarjetas, inputs, modales. --paper: fondo de página.
+*/
 :root {
   color-scheme: light;
   --forest: #163a2e;
   --moss: #2f6b4f;
   --paper: #f4f6f2;
+  --surface: #ffffff;
   --ink: #17241e;
   --ink-soft: #5b6b63;
   --brick: #c1443b;
+  --warn: #b8860b;
+  --brand-text: #163a2e;
+  --accent-text: #2f6b4f;
+  --accent-soft: rgba(47, 107, 79, 0.08);
+  --line-soft: rgba(0, 0, 0, 0.05);
+  --line: rgba(0, 0, 0, 0.1);
+  --line-strong: rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper: #151917;
+    --surface: #242a27;
+    --ink: #e7ece9;
+    --ink-soft: #a2afa8;
+    --brick: #e5736a;
+    --warn: #e2b84f;
+    --brand-text: #8fd0ae;
+    --accent-text: #6fc095;
+    --accent-soft: rgba(111, 192, 149, 0.12);
+    --line-soft: rgba(255, 255, 255, 0.05);
+    --line: rgba(255, 255, 255, 0.1);
+    --line-strong: rgba(255, 255, 255, 0.18);
+  }
+}
+
+/* Al imprimir (cartel QR) siempre en claro, aunque el navegador esté en oscuro */
+@media print {
+  :root {
+    color-scheme: light;
+    --paper: #ffffff;
+    --surface: #ffffff;
+    --ink: #17241e;
+    --ink-soft: #5b6b63;
+  }
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-line-soft: var(--line-soft);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .success-pop {
@@ -116,4 +149,136 @@ button:disabled,
 }
 .btn-primary:active:not(:disabled) {
   transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  color: var(--brand-text);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.btn-secondary:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-text);
+}
+
+.btn-danger-text {
+  color: var(--brick);
+  font-weight: 500;
+  font-size: 13px;
+  transition: opacity 0.15s ease;
+}
+.btn-danger-text:hover {
+  opacity: 0.7;
+}
+
+.btn-logout {
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+.btn-logout:hover {
+  color: var(--brick);
+}
+
+.nav-icon-btn {
+  color: white;
+  opacity: 0.85;
+  padding: 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.nav-icon-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.legal-prose {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.legal-prose h1 {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 4px;
+}
+.legal-prose h2 {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  margin-top: 32px;
+  margin-bottom: 8px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.legal-prose p {
+  margin-bottom: 12px;
+}
+.legal-prose ul {
+  list-style: disc;
+  padding-left: 22px;
+  margin-bottom: 12px;
+}
+.legal-prose li {
+  margin-bottom: 6px;
+}
+.legal-prose li::marker {
+  color: var(--accent-text);
+}
+.legal-prose strong {
+  font-weight: 600;
+}
+.legal-prose a {
+  color: var(--accent-text);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.legal-prose a:hover {
+  color: var(--brand-text);
+}
+.legal-prose .legal-updated {
+  color: var(--ink-soft);
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+/* Entrada de la tarjeta del cliente (/card/[serial]) */
+.card-enter {
+  animation: card-enter 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes card-enter {
+  from {
+    transform: translateY(16px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-enter {
+    animation: none;
+  }
+}
+
+/* Modal "¿No quieres usar tu Wallet?" (/card/[serial]) */
+.no-wallet-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+.no-wallet-dialog[open] {
+  animation: pop-in 0.2s ease-out;
 }

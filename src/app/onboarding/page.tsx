@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { createBusiness } from './actions'
+import CrocodeileLogo from '@/components/crocodeile-logo'
+import { Check, Gift, X } from 'lucide-react'
 
-type ProgramType = 'stamps' | 'stamps_tiers' | 'cashback'
+type ProgramType = 'stamps' | 'stamps_tiers'
 
 const HEX_REGEX = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
 const MAX_LOGO_MB = 17
@@ -58,7 +60,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 }
 
 function inputClass() {
-  return 'w-full rounded-md border border-black/15 bg-white text-[var(--ink)] px-3 py-2 outline-none transition-colors focus:border-[var(--forest)]'
+  return 'w-full rounded-md border border-line-strong bg-surface text-[var(--ink)] px-3 py-2 outline-none transition-colors focus:border-[var(--brand-text)]'
 }
 
 function RadioCard({
@@ -78,16 +80,16 @@ function RadioCard({
     <label
       className="flex items-start gap-3 rounded-md border px-4 py-3 cursor-pointer transition-colors"
       style={{
-        borderColor: checked ? 'var(--forest)' : 'rgba(0,0,0,0.12)',
-        background: checked ? 'rgba(47,107,79,0.06)' : 'white',
+        borderColor: checked ? 'var(--brand-text)' : 'var(--line-strong)',
+        background: checked ? 'var(--accent-soft)' : 'var(--surface)',
       }}
     >
       <input type="radio" name={name} checked={checked} onChange={onSelect} className="sr-only" />
       <span
         className="mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center"
-        style={{ borderColor: checked ? 'var(--forest)' : 'rgba(0,0,0,0.25)' }}
+        style={{ borderColor: checked ? 'var(--brand-text)' : 'var(--ink-soft)' }}
       >
-        {checked && <span className="w-2 h-2 rounded-full" style={{ background: 'var(--forest)' }} />}
+        {checked && <span className="w-2 h-2 rounded-full" style={{ background: 'var(--brand-text)' }} />}
       </span>
       <span>
         <span className="block text-sm font-medium" style={{ color: 'var(--ink)' }}>
@@ -109,8 +111,6 @@ function BusinessCardPreview({
   simpleGoal,
   tiers,
   rewardDescription,
-  cashbackAmount,
-  cashbackPer,
 }: {
   name: string
   brandColor: string
@@ -119,8 +119,6 @@ function BusinessCardPreview({
   simpleGoal: string
   tiers: { threshold: number; reward: string }[]
   rewardDescription: string
-  cashbackAmount: string
-  cashbackPer: string
 }) {
   const safeColor = HEX_REGEX.test(brandColor) ? brandColor : '#163a2e'
   const textColor = getReadableTextColor(safeColor)
@@ -155,19 +153,6 @@ function BusinessCardPreview({
         </span>
       </div>
 
-      {programType === 'cashback' ? (
-        <div className="mb-5">
-          <p className="text-xs mb-1" style={mutedTextStyle}>
-            Saldo disponible
-          </p>
-          <p className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-            $0.00
-          </p>
-          <p className="text-xs mt-1" style={mutedTextStyle}>
-            +${cashbackAmount || 0} por cada ${cashbackPer || 0} gastados
-          </p>
-        </div>
-      ) : (
         <div className="mb-5">
           <p className="text-xs mb-2" style={mutedTextStyle}>
             0 visitas
@@ -187,11 +172,11 @@ function BusinessCardPreview({
             )}
           </div>
         </div>
-      )}
 
       {programType === 'stamps' && (
         <p className="text-xs mb-5" style={rewardDescription.trim() ? { color: textColor } : mutedTextStyle}>
-          🎁 {rewardDescription.trim() || 'Tu recompensa aparecerá aquí'}
+          <Gift size={12} className="inline -mt-0.5 mr-1" aria-hidden />
+          {rewardDescription.trim() || 'Tu recompensa aparecerá aquí'}
         </p>
       )}
 
@@ -217,9 +202,6 @@ export default function OnboardingPage() {
   const [minPurchase, setMinPurchase] = useState('100')
   const [cooldownMinutes, setCooldownMinutes] = useState('60')
   const [rewardDescription, setRewardDescription] = useState('')
-  const [cashbackAmount, setCashbackAmount] = useState('1')
-  const [cashbackPer, setCashbackPer] = useState('100')
-  const [minRedeem, setMinRedeem] = useState('20')
   const [tiers, setTiers] = useState([{ threshold: 5, reward: '' }])
   const [error, setError] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
@@ -320,9 +302,6 @@ export default function OnboardingPage() {
     formData.set('minPurchase', minPurchase)
     formData.set('cooldownMinutes', cooldownMinutes)
     formData.set('rewardDescription', rewardDescription)
-    formData.set('cashbackAmount', cashbackAmount)
-    formData.set('cashbackPer', cashbackPer)
-    formData.set('minRedeem', minRedeem)
     formData.set('tiers', JSON.stringify(tiers))
     formData.set('simpleGoal', simpleGoal)
 
@@ -346,15 +325,7 @@ export default function OnboardingPage() {
   return (
     <main className="min-h-screen px-4 py-8 md:py-12" style={{ background: 'var(--paper)' }}>
       <div className="max-w-5xl mx-auto">
-        {/* Espacio para tu logo real: reemplaza por <img src="/logo.svg" /> */}
-        <div
-          className="w-10 h-10 rounded-md flex items-center justify-center mb-6"
-          style={{ background: 'var(--forest)' }}
-        >
-          <span className="text-white font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-            C
-          </span>
-        </div>
+        <CrocodeileLogo size={40} surface="auto" className="mb-6" />
 
         <div className="grid md:grid-cols-[280px_1fr] gap-8 items-start">
 
@@ -367,15 +338,13 @@ export default function OnboardingPage() {
               simpleGoal={simpleGoal}
               tiers={tiers}
               rewardDescription={rewardDescription}
-              cashbackAmount={cashbackAmount}
-              cashbackPer={cashbackPer}
             />
             <p className="mt-2 text-xs italic" style={{ color: 'var(--ink-soft)' }}>
               Vista previa, acomodo puede variar en cards reales *
             </p>
           </div>
 
-          <div className="bg-white rounded-xl border border-black/10 p-6 md:p-10">
+          <div className="bg-surface rounded-xl border border-line p-6 md:p-10">
             <h1
               className="text-2xl font-bold mb-1"
               style={{ color: 'var(--ink)', fontFamily: 'var(--font-display)' }}
@@ -404,7 +373,7 @@ export default function OnboardingPage() {
                     type="color"
                     value={brandColor}
                     onChange={(e) => handleColorPicker(e.target.value)}
-                    className="w-11 h-11 rounded-md border border-black/15 cursor-pointer p-0.5"
+                    className="w-11 h-11 rounded-md border border-line-strong cursor-pointer p-0.5"
                   />
                   <input
                     value={hexInput}
@@ -422,7 +391,7 @@ export default function OnboardingPage() {
                   <label
                     htmlFor="logo-upload"
                     className="inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium cursor-pointer"
-                    style={{ borderColor: 'var(--forest)', color: 'var(--forest)' }}
+                    style={{ borderColor: 'var(--brand-text)', color: 'var(--brand-text)' }}
                   >
                     Elegir imagen
                   </label>
@@ -434,8 +403,9 @@ export default function OnboardingPage() {
                     className="sr-only"
                   />
                   {logoFile && !fileError && (
-                    <span className="text-sm font-medium" style={{ color: 'var(--moss)' }}>
-                      ✓ Imagen lista: {logoFile.name}
+                    <span className="text-sm font-medium inline-flex items-center gap-1.5" style={{ color: 'var(--accent-text)' }}>
+                      <Check size={14} className="flex-shrink-0" aria-hidden />
+                      Imagen lista: {logoFile.name}
                     </span>
                   )}
                 </div>
@@ -468,18 +438,10 @@ export default function OnboardingPage() {
                     title="Sellos con niveles"
                     description="Varias recompensas: chica, mediana, grande..."
                   />
-                  <RadioCard
-                    name="programType"
-                    checked={programType === 'cashback'}
-                    onSelect={() => setProgramType('cashback')}
-                    title="Cashback"
-                    description="Saldo en dinero por cada compra"
-                  />
                 </div>
               </div>
 
-              {(programType === 'stamps' || programType === 'stamps_tiers') && (
-                <>
+              <>
                   <div className="mb-5">
                     <label className="block text-sm mb-2" style={{ color: 'var(--ink-soft)' }}>
                       ¿Cómo se gana un sello?
@@ -515,8 +477,7 @@ export default function OnboardingPage() {
                       />
                     </Field>
                   )}
-                </>
-              )}
+              </>
 
               {programType === 'stamps' && (
                 <>
@@ -576,11 +537,11 @@ export default function OnboardingPage() {
                           <button
                             type="button"
                             onClick={() => removeTier(i)}
-                            className="rounded-md border border-black/15 w-9 h-9 flex items-center justify-center flex-shrink-0"
+                            className="rounded-md border border-line-strong w-9 h-9 flex items-center justify-center flex-shrink-0"
                             style={{ color: 'var(--brick)' }}
                             aria-label="Quitar nivel"
                           >
-                            ✕
+                            <X size={16} aria-hidden />
                           </button>
                         )}
                       </div>
@@ -590,60 +551,14 @@ export default function OnboardingPage() {
                     type="button"
                     onClick={addTier}
                     className="mt-2 text-sm font-medium"
-                    style={{ color: 'var(--moss)' }}
+                    style={{ color: 'var(--accent-text)' }}
                   >
                     + Agregar nivel
                   </button>
                 </div>
               )}
 
-              {programType === 'cashback' && (
-                <>
-                  <Field label="¿Cuánto cashback das?">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="whitespace-nowrap flex items-center gap-1">
-                        <input
-                          type="number"
-                          min={0}
-                          max={999999}
-                          value={cashbackAmount}
-                          onChange={(e) => setCashbackAmount(e.target.value)}
-                          onBlur={(e) => setCashbackAmount(clamp(e.target.value, 0, 999999))}
-                          className={`${inputClass()} w-20`}
-                        />
-                      </span>
-                      <span style={{ color: 'var(--ink-soft)' }}>por cada</span>
-                      <span className="whitespace-nowrap flex items-center gap-1">
-                        <span style={{ color: 'var(--ink-soft)' }}>$</span>
-                        <input
-                          type="number"
-                          min={0}
-                          max={999999}
-                          value={cashbackPer}
-                          onChange={(e) => setCashbackPer(e.target.value)}
-                          onBlur={(e) => setCashbackPer(clamp(e.target.value, 0, 999999))}
-                          className={`${inputClass()} w-20`}
-                        />
-                      </span>
-                      <span style={{ color: 'var(--ink-soft)' }}>gastados</span>
-                    </div>
-                  </Field>
-
-                  <Field label="Mínimo para canjear (MXN)">
-                    <input
-                      type="number"
-                      min={0}
-                      max={999999}
-                      value={minRedeem}
-                      onChange={(e) => setMinRedeem(e.target.value)}
-                      onBlur={(e) => setMinRedeem(clamp(e.target.value, 0, 999999))}
-                      className={inputClass()}
-                    />
-                  </Field>
-                </>
-              )}
-
-              <Field label="Minutos de espera entre sellos/compras (anti-abuso)" hint="Máximo 1000 minutos">
+              <Field label="Minutos de espera entre sellos (anti-abuso)" hint="Máximo 1000 minutos">
                 <input
                   type="text"
                   inputMode="numeric"

@@ -94,6 +94,7 @@ export async function upsertLoyaltyObject({
   cardId,
   customerName,
   balance,
+  goal,
   rewardText,
   serial,
 }: {
@@ -101,27 +102,48 @@ export async function upsertLoyaltyObject({
   cardId: string
   customerName: string
   balance: number
+  goal: number | null
   rewardText: string | null
   serial: string
 }) {
   const objectId = `${ISSUER_ID}.${cardId}`
+
+  const loyaltyPoints = { label: 'Sellos', balance: { string: goal ? `${balance}/${goal}` : String(balance) } }
+
+  const textModulesData: { id: string; header: string; body: string }[] = []
+  if (rewardText) {
+    textModulesData.push({ id: 'reward', header: 'Recompensa disponible', body: rewardText })
+  } else if (goal) {
+    const remaining = Math.max(goal - balance, 0)
+    textModulesData.push({
+      id: 'next-reward',
+      header: 'Próximo premio',
+      body: remaining === 0 ? '¡Ya la desbloqueaste!' : `${remaining} sello${remaining === 1 ? '' : 's'} más`,
+    })
+  }
+
+  // Franja con los círculos de sellos + "Powered by Crocodeile" (src/lib/wallet-strip.tsx).
+  // Google cachea las imágenes por URL: ?v= cambia con cada sello para forzar que la vuelva a descargar.
+  // Solo con URL pública HTTPS: Google descarga la imagen desde sus servidores (en local con
+  // http://localhost no podría, y el pase se crea sin franja en vez de arriesgar un rechazo).
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  const version = `${balance}-${goal ?? 0}-${rewardText ? 1 : 0}`
+  const heroImage = siteUrl?.startsWith('https://')
+    ? {
+        sourceUri: { uri: `${siteUrl}/api/wallet/strip/${serial}?v=${encodeURIComponent(version)}` },
+        contentDescription: { defaultValue: { language: 'es', value: 'Progreso de tu tarjeta' } },
+      }
+    : undefined
 
   const objectPayload = {
     id: objectId,
     classId,
     state: 'ACTIVE',
     accountName: customerName,
-    loyaltyPoints: {
-      label: 'Visitas',
-      balance: { int: balance },
-    },
-    barcode: {
-      type: 'QR_CODE',
-      value: serial,
-    },
-    textModulesData: rewardText
-    ? [{ id: 'reward', header: 'Recompensa disponible', body: rewardText }]
-    : [],
+    loyaltyPoints,
+    barcode: { type: 'QR_CODE', value: serial },
+    textModulesData,
+    heroImage,
   }
 
   const createRes = await authedFetch(`${BASE_URL}/loyaltyObject`, {

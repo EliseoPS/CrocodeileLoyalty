@@ -15,7 +15,9 @@ export async function createCheckoutSession(): Promise<{ error: string } | { url
     .from('business_members')
     .select('business_id, businesses(name)')
     .eq('user_id', user.id)
-    .single()
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
 
   if (!membership) return { error: 'No tienes negocio' }
 
@@ -67,7 +69,9 @@ export async function createPortalSession(): Promise<{ error: string } | { url: 
     .from('business_members')
     .select('business_id')
     .eq('user_id', user.id)
-    .single()
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
 
   if (!membership) return { error: 'No tienes negocio' }
 
