@@ -6,6 +6,23 @@ import BillingButton from './billing/billing-button'
 import DashboardNavbar from './navbar'
 import { Ban, TriangleAlert } from 'lucide-react'
 
+const DEFAULT_TIMEZONE = 'America/Mexico_City'
+
+function daysAgoIso(days: number) {
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+}
+
+// El servidor corre en UTC (Docker): la hora se calcula en la zona horaria del negocio
+function hourInTimezone(iso: string, timeZone: string) {
+  try {
+    return Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone }).format(new Date(iso)))
+  } catch {
+    return Number(
+      new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: DEFAULT_TIMEZONE }).format(new Date(iso))
+    )
+  }
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient()
 
@@ -32,7 +49,7 @@ export default async function DashboardPage() {
     .select('*', { count: 'exact', head: true })
     .eq('business_id', businessId)
 
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  const thirtyDaysAgo = daysAgoIso(30)
   const { count: inactiveCustomers } = await supabase
     .from('cards')
     .select('*', { count: 'exact', head: true })
@@ -49,11 +66,12 @@ export default async function DashboardPage() {
     .select('created_at')
     .eq('business_id', businessId)
     .eq('type', 'earn')
-    .gte('created_at', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
+    .gte('created_at', daysAgoIso(90))
 
+  const timeZone = (business?.timezone as string | null) || DEFAULT_TIMEZONE
   const hourCounts: Record<number, number> = {}
   earnTransactions?.forEach((tx) => {
-    const hour = new Date(tx.created_at).getHours()
+    const hour = hourInTimezone(tx.created_at, timeZone)
     hourCounts[hour] = (hourCounts[hour] || 0) + 1
   })
   const peakHour = Object.entries(hourCounts).sort((a, b) => b[1] - a[1])[0]

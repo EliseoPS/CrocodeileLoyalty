@@ -17,7 +17,8 @@ export async function getDeviceBusinessId(): Promise<{ businessId: string } | { 
 
   if (!device || device.revoked_at) return { error: 'Dispositivo no autorizado o revocado' }
 
-  admin.from('devices').update({ last_seen_at: new Date().toISOString() }).eq('id', device.id)
+  // Sin await el query builder de Supabase nunca se ejecuta (es perezoso)
+  await admin.from('devices').update({ last_seen_at: new Date().toISOString() }).eq('id', device.id)
 
   return { businessId: device.business_id }
 }

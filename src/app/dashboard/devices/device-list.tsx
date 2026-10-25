@@ -36,7 +36,8 @@ export default function DeviceList({ refreshKey }: { refreshKey: number }) {
   }, [])
 
   useEffect(() => {
-    load()
+    // Diferido a una microtarea para no disparar setState síncrono dentro del efecto
+    void Promise.resolve().then(load)
   }, [load, refreshKey])
 
   async function handleRevoke(id: string) {

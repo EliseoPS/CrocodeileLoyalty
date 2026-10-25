@@ -6,7 +6,6 @@ import { getStripe } from '@/lib/stripe'
 export async function createCheckoutSession(): Promise<{ error: string } | { url: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const stripe = getStripe()
   if (!user) return { error: 'No has iniciado sesión' }
 
   const userEmail = user.email

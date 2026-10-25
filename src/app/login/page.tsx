@@ -5,17 +5,10 @@ import { login, signup } from './actions'
 import { requestPasswordReset } from './forgot-password-actions'
 import CrocodeileLogo from '@/components/crocodeile-logo'
 import { Check, Circle } from 'lucide-react'
+import { passwordChecks } from '@/lib/password'
 
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-}
-
-function passwordChecks(value: string) {
-  return {
-    length: value.length >= 8,
-    digit: /\d/.test(value),
-    special: /[^A-Za-z0-9]/.test(value),
-  }
 }
 
 function EyeIcon({ off }: { off: boolean }) {

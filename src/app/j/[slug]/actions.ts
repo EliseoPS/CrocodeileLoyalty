@@ -52,6 +52,11 @@ export async function registerCustomer({
 
   if (!programInfo) return { success: false, error: GENERIC_ERROR }
 
+  const { data: business } = await supabase.from('businesses').select('status').eq('id', businessId).single()
+  if (business?.status === 'suspended' || business?.status === 'canceled') {
+    return { success: false, error: 'Este negocio no está aceptando registros nuevos por el momento.' }
+  }
+
   // Busca si ya existe un cliente con ese teléfono en este negocio
   let { data: customer } = await supabase
     .from('customers')

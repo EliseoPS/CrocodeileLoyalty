@@ -13,7 +13,7 @@ export default async function JoinPage({
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id, name, logo_url')
+    .select('id, name, logo_url, status')
     .eq('slug', slug)
     .single()
 
@@ -26,6 +26,9 @@ export default async function JoinPage({
     .eq('active', true)
     .limit(1)
     .single()
+
+  // Suspendido por falta de pago: no acepta registros nuevos (Términos, sección 3)
+  const acceptingSignups = business.status !== 'suspended' && business.status !== 'canceled'
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-10" style={{ background: 'var(--paper)' }}>
@@ -54,7 +57,7 @@ export default async function JoinPage({
         </div>
 
         <div className="bg-surface rounded-xl border border-line p-6 md:p-8">
-          {program ? (
+          {program && acceptingSignups ? (
             <>
               <h2
                 className="text-lg font-bold mb-1"
@@ -81,7 +84,9 @@ export default async function JoinPage({
             </>
           ) : (
             <p className="text-sm text-center" style={{ color: 'var(--ink-soft)' }}>
-              Este negocio aún no tiene un programa de lealtad activo. Vuelve a intentarlo más tarde.
+              {acceptingSignups
+                ? 'Este negocio aún no tiene un programa de lealtad activo. Vuelve a intentarlo más tarde.'
+                : 'Este negocio no está aceptando registros nuevos por el momento. Vuelve a intentarlo más tarde.'}
             </p>
           )}
         </div>
